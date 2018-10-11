@@ -13,4 +13,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer mq.Unlink()
+
+	mq.Send([]byte("Hello,World"), 0)
 }
