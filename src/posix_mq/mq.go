@@ -19,6 +19,12 @@ func NewMessageQueue(name string, oflag int) (*MessageQueue, error) {
 	}, nil
 }
 
+// Send sends message the message queue.
+func (mq *MessageQueue) Send(data []byte, priority uint) error {
+	_, err := mq_send(mq.handler, data, priority)
+	return err
+}
+
 // Unlink deletes the message queue.
 func (mq *MessageQueue) Unlink() error {
 	_, err := mq_unlink(mq.name)
