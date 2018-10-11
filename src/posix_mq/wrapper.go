@@ -18,3 +18,8 @@ func mq_open(name string, oflag int) (int, error) {
 
 	return int(h), nil
 }
+
+func mq_unlink(name string) (int, error) {
+	rv, err := C.mq_unlink(C.CString(name))
+	return int(rv), err
+}
