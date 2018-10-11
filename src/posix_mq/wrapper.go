@@ -1,18 +1,31 @@
 package posix_mq
 
 /*
+#include <fcntl.h>
 #include <mqueue.h>
 
-// Expose non-variadic function requires 2 arguments.
-mqd_t mq_open2(const char *name, int oflag) {
-	return mq_open(name, oflag);
+// Expose non-variadic function requires 4 arguments.
+mqd_t mq_open4(const char *name, int oflag, int mode, struct mq_attr *attr) {
+	return mq_open(name, oflag, mode, attr);
 }
 */
 import "C"
 import "unsafe"
 
-func mq_open(name string, oflag int) (int, error) {
-	h, err := C.mq_open2(C.CString(name), C.int(oflag))
+const (
+	O_RDONLY = C.O_RDONLY
+	O_WRONLY = C.O_WRONLY
+	O_RDWR   = C.O_RDWR
+
+	O_CLOEXEC  = C.O_CLOEXEC
+	O_CREAT    = C.O_CREAT
+	O_EXCL     = C.O_EXCL
+	O_NONBLOCK = C.O_NONBLOCK
+)
+
+func mq_open(name string, oflag int, mode int) (int, error) {
+	// TODO Support mq_attr
+	h, err := C.mq_open4(C.CString(name), C.int(oflag), C.int(mode), nil)
 	if err != nil {
 		return 0, err
 	}

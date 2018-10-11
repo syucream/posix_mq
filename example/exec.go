@@ -7,8 +7,10 @@ import (
 )
 
 func main() {
-	_, err := posix_mq.NewMessageQueue("/tmp/posix_mq_01", 0)
+	oflag := posix_mq.O_RDWR | posix_mq.O_CREAT
+	mq, err := posix_mq.NewMessageQueue("/posix_mq_example", oflag, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer mq.Unlink()
 }

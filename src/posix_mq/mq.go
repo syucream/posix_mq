@@ -7,8 +7,8 @@ type MessageQueue struct {
 }
 
 // NewMessageQueue returns an instance of the message queue given a QueueConfig.
-func NewMessageQueue(name string, oflag int) (*MessageQueue, error) {
-	h, err := mq_open(name, oflag)
+func NewMessageQueue(name string, oflag int, mode int) (*MessageQueue, error) {
+	h, err := mq_open(name, oflag, mode)
 	if err != nil {
 		return nil, err
 	}

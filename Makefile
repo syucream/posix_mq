@@ -5,3 +5,7 @@ build-docker:
 .PHONY: build
 build:
 	go build example/exec.go
+
+.PHONY: run
+run:
+	go run example/exec.go
