@@ -2,6 +2,7 @@ package posix_mq
 
 /*
 #include <stdlib.h>
+#include <signal.h>
 #include <fcntl.h>
 #include <mqueue.h>
 
@@ -89,6 +90,16 @@ func mq_receive(h int, recvBuf *receiveBuffer) ([]byte, uint, error) {
 	}
 
 	return C.GoBytes(unsafe.Pointer(recvBuf.buf), C.int(size)), uint(msgPrio), nil
+}
+
+func mq_notify(h int, sigNo int) (int, error) {
+	sigEvent := &C.struct_sigevent{
+		sigev_notify: C.SIGEV_SIGNAL, // posix_mq supports only signal.
+		sigev_signo:  C.int(sigNo),
+	}
+
+	rv, err := C.mq_notify(C.int(h), sigEvent)
+	return int(rv), err
 }
 
 func mq_close(h int) (int, error) {

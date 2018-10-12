@@ -38,7 +38,7 @@ func NewMessageQueue(name string, oflag int, mode int, attr *MessageQueueAttribu
 	}, nil
 }
 
-// Send sends message the message queue.
+// Send sends message to the message queue.
 func (mq *MessageQueue) Send(data []byte, priority uint) error {
 	_, err := mq_send(mq.handler, data, priority)
 	return err
@@ -47,6 +47,12 @@ func (mq *MessageQueue) Send(data []byte, priority uint) error {
 // Receive receives message from the message queue.
 func (mq *MessageQueue) Receive() ([]byte, uint, error) {
 	return mq_receive(mq.handler, mq.recvBuf)
+}
+
+// Notify set signal notification to handle new messages.
+func (mq *MessageQueue) Notify(sigNo int) error {
+	_, err := mq_notify(mq.handler, sigNo)
+	return err
 }
 
 // Close closes the message queue.
