@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -21,6 +22,7 @@ func main() {
 	for {
 		count++
 		mq.Send([]byte("Hello,World"), 0)
+		fmt.Println("Sent a new message")
 
 		if count >= maxTickNum {
 			break

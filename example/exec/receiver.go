@@ -25,6 +25,8 @@ func main() {
 	signal.Notify(sigs, sigNo)
 	mq.Notify(sigNo)
 
+	fmt.Println("Start receiving messages")
+
 	count := 0
 	for {
 		count++
