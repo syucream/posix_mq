@@ -1,5 +1,7 @@
 package posix_mq
 
+import "syscall"
+
 // Represents the message queue
 type MessageQueue struct {
 	handler int
@@ -50,8 +52,8 @@ func (mq *MessageQueue) Receive() ([]byte, uint, error) {
 }
 
 // Notify set signal notification to handle new messages.
-func (mq *MessageQueue) Notify(sigNo int) error {
-	_, err := mq_notify(mq.handler, sigNo)
+func (mq *MessageQueue) Notify(sigNo syscall.Signal) error {
+	_, err := mq_notify(mq.handler, int(sigNo))
 	return err
 }
 
