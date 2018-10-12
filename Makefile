@@ -2,6 +2,11 @@
 build-docker:
 	docker build -f Dockerfile-dev -t posix_mq .
 
+.PHONY: docker
+docker:
+	docker build -f Dockerfile-sender -t posix_mq_sender .
+	docker build -f Dockerfile-receiver -t posix_mq_receiver .
+
 .PHONY: build
 build:
 	go build example/exec/sender.go

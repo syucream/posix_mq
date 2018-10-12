@@ -5,4 +5,4 @@ ADD . /go/src/github.com/syucream/posix_mq
 
 RUN apk --update add build-base
 
-RUN make run-receiver
+CMD make run-receiver
