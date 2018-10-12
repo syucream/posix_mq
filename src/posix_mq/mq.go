@@ -7,14 +7,26 @@ type MessageQueue struct {
 	recvBuf *receiveBuffer
 }
 
+// Represents the message queue attribute
+type MessageQueueAttribute struct {
+	flags   int
+	maxMsg  int
+	msgSize int
+	curMsgs int
+}
+
 // NewMessageQueue returns an instance of the message queue given a QueueConfig.
-func NewMessageQueue(name string, oflag int, mode int) (*MessageQueue, error) {
-	h, err := mq_open(name, oflag, mode)
+func NewMessageQueue(name string, oflag int, mode int, attr *MessageQueueAttribute) (*MessageQueue, error) {
+	h, err := mq_open(name, oflag, mode, attr)
 	if err != nil {
 		return nil, err
 	}
 
-	recvBuf, err := newReceiveBuffer(MSGSIZE_DEFAULT)
+	msgSize := MSGSIZE_DEFAULT
+	if attr != nil {
+		msgSize = attr.msgSize
+	}
+	recvBuf, err := newReceiveBuffer(msgSize)
 	if err != nil {
 		return nil, err
 	}

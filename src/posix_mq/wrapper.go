@@ -56,9 +56,17 @@ func (rb *receiveBuffer) free() {
 	C.free(unsafe.Pointer(rb.buf))
 }
 
-func mq_open(name string, oflag int, mode int) (int, error) {
-	// TODO Support mq_attr
-	h, err := C.mq_open4(C.CString(name), C.int(oflag), C.int(mode), nil)
+func mq_open(name string, oflag int, mode int, attr *MessageQueueAttribute) (int, error) {
+	var cAttr *C.struct_mq_attr
+	if attr != nil {
+		cAttr = &C.struct_mq_attr{
+			mq_flags:   C.long(attr.flags),
+			mq_maxmsg:  C.long(attr.maxMsg),
+			mq_msgsize: C.long(attr.msgSize),
+		}
+	}
+
+	h, err := C.mq_open4(C.CString(name), C.int(oflag), C.int(mode), cAttr)
 	if err != nil {
 		return 0, err
 	}
