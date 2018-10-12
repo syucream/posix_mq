@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/syucream/posix_mq/src/posix_mq"
@@ -15,4 +16,10 @@ func main() {
 	defer mq.Unlink()
 
 	mq.Send([]byte("Hello,World"), 0)
+
+	msg, _, err := mq.Receive()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(msg))
 }

@@ -33,7 +33,7 @@ func (mq *MessageQueue) Send(data []byte, priority uint) error {
 }
 
 // Receive receives message from the message queue.
-func (mq *MessageQueue) Receive(priority uint) ([]byte, uint, error) {
+func (mq *MessageQueue) Receive() ([]byte, uint, error) {
 	return mq_receive(mq.handler, mq.recvBuf)
 }
 
