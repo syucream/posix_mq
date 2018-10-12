@@ -1,6 +1,7 @@
 package posix_mq
 
 /*
+#include <stdlib.h>
 #include <fcntl.h>
 #include <mqueue.h>
 
@@ -10,7 +11,10 @@ mqd_t mq_open4(const char *name, int oflag, int mode, struct mq_attr *attr) {
 }
 */
 import "C"
-import "unsafe"
+import (
+	"fmt"
+	"unsafe"
+)
 
 const (
 	O_RDONLY = C.O_RDONLY
@@ -21,7 +25,36 @@ const (
 	O_CREAT    = C.O_CREAT
 	O_EXCL     = C.O_EXCL
 	O_NONBLOCK = C.O_NONBLOCK
+
+	// Based on Linux 3.5+
+	MSGSIZE_MAX     = 16777216
+	MSGSIZE_DEFAULT = MSGSIZE_MAX
 )
+
+var (
+	MemoryAllocationError = fmt.Errorf("Memory Allocation Error")
+)
+
+type receiveBuffer struct {
+	buf  *C.char
+	size C.size_t
+}
+
+func newReceiveBuffer(bufSize int) (*receiveBuffer, error) {
+	buf := (*C.char)(C.malloc(C.size_t(bufSize)))
+	if buf == nil {
+		return nil, MemoryAllocationError
+	}
+
+	return &receiveBuffer{
+		buf:  buf,
+		size: C.size_t(bufSize),
+	}, nil
+}
+
+func (rb *receiveBuffer) free() {
+	C.free(unsafe.Pointer(rb.buf))
+}
 
 func mq_open(name string, oflag int, mode int) (int, error) {
 	// TODO Support mq_attr
@@ -37,6 +70,17 @@ func mq_send(h int, data []byte, priority uint) (int, error) {
 	byteStr := *(*string)(unsafe.Pointer(&data))
 	rv, err := C.mq_send(C.int(h), C.CString(byteStr), C.size_t(len(data)), C.uint(priority))
 	return int(rv), err
+}
+
+func mq_receive(h int, recvBuf *receiveBuffer) ([]byte, uint, error) {
+	var msgPrio C.uint
+
+	size, err := C.mq_receive(C.int(h), recvBuf.buf, recvBuf.size, &msgPrio)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return C.GoBytes(unsafe.Pointer(recvBuf.buf), C.int(size)), uint(msgPrio), nil
 }
 
 func mq_unlink(name string) (int, error) {
