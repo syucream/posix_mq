@@ -13,7 +13,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer mq.Unlink()
+	defer mq.Close()
 
 	mq.Send([]byte("Hello,World"), 0)
 

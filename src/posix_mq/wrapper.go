@@ -83,6 +83,11 @@ func mq_receive(h int, recvBuf *receiveBuffer) ([]byte, uint, error) {
 	return C.GoBytes(unsafe.Pointer(recvBuf.buf), C.int(size)), uint(msgPrio), nil
 }
 
+func mq_close(h int) (int, error) {
+	rv, err := C.mq_close(C.int(h))
+	return int(rv), err
+}
+
 func mq_unlink(name string) (int, error) {
 	rv, err := C.mq_unlink(C.CString(name))
 	return int(rv), err

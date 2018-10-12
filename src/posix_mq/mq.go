@@ -37,9 +37,17 @@ func (mq *MessageQueue) Receive() ([]byte, uint, error) {
 	return mq_receive(mq.handler, mq.recvBuf)
 }
 
+// Close closes the message queue.
+func (mq *MessageQueue) Close() error {
+	mq.recvBuf.free()
+
+	_, err := mq_close(mq.handler)
+	return err
+}
+
 // Unlink deletes the message queue.
 func (mq *MessageQueue) Unlink() error {
-	mq.recvBuf.free()
+	mq.Close()
 
 	_, err := mq_unlink(mq.name)
 	return err
