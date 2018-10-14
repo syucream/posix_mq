@@ -51,6 +51,7 @@ func (mq *MessageQueue) Receive() ([]byte, uint, error) {
 	return mq_receive(mq.handler, mq.recvBuf)
 }
 
+// FIXME Don't work because of signal portability.
 // Notify set signal notification to handle new messages.
 func (mq *MessageQueue) Notify(sigNo syscall.Signal) error {
 	_, err := mq_notify(mq.handler, int(sigNo))
