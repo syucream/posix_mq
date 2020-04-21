@@ -1,8 +1,0 @@
-FROM golang:1.14-alpine
-
-WORKDIR /go/src/github.com/syucream/posix_mq
-ADD . /go/src/github.com/syucream/posix_mq
-
-RUN apk --update add build-base
-
-CMD make run-receiver
