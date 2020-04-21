@@ -11,9 +11,10 @@ type MessageQueue struct {
 
 // Represents the message queue attribute
 type MessageQueueAttribute struct {
-	flags   int
-	maxMsg  int
-	msgSize int
+	Flags   int
+	MaxMsg  int
+	MsgSize int
+
 	curMsgs int
 }
 
@@ -26,7 +27,7 @@ func NewMessageQueue(name string, oflag int, mode int, attr *MessageQueueAttribu
 
 	msgSize := MSGSIZE_DEFAULT
 	if attr != nil {
-		msgSize = attr.msgSize
+		msgSize = attr.MsgSize
 	}
 	recvBuf, err := newReceiveBuffer(msgSize)
 	if err != nil {
@@ -68,8 +69,12 @@ func (mq *MessageQueue) Close() error {
 
 // Unlink deletes the message queue.
 func (mq *MessageQueue) Unlink() error {
-	mq.Close()
+	err := mq.Close()
+	if err != nil {
+		return err
+	}
 
-	_, err := mq_unlink(mq.name)
+	_, err = mq_unlink(mq.name)
+
 	return err
 }

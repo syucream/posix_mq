@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/syucream/posix_mq/src/posix_mq"
+	"github.com/syucream/posix_mq"
 )
 
-const maxTickNum = 10
+const maxRecvTickNum = 10
 
 func main() {
 	oflag := posix_mq.O_RDONLY
@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer mq.Close()
+	defer mq.Unlink()
 
 	fmt.Println("Start receiving messages")
 
@@ -29,7 +29,7 @@ func main() {
 		}
 		fmt.Printf(string(msg))
 
-		if count >= maxTickNum {
+		if count >= maxRecvTickNum {
 			break
 		}
 	}

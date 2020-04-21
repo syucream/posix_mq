@@ -63,9 +63,9 @@ func mq_open(name string, oflag int, mode int, attr *MessageQueueAttribute) (int
 	var cAttr *C.struct_mq_attr
 	if attr != nil {
 		cAttr = &C.struct_mq_attr{
-			mq_flags:   C.long(attr.flags),
-			mq_maxmsg:  C.long(attr.maxMsg),
-			mq_msgsize: C.long(attr.msgSize),
+			mq_flags:   C.long(attr.Flags),
+			mq_maxmsg:  C.long(attr.MaxMsg),
+			mq_msgsize: C.long(attr.MsgSize),
 		}
 	}
 

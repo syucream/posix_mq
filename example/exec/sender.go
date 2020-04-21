@@ -5,10 +5,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/syucream/posix_mq/src/posix_mq"
+	"github.com/syucream/posix_mq"
 )
 
-const maxTickNum = 10
+const maxSendTickNum = 10
 
 func main() {
 	oflag := posix_mq.O_WRONLY | posix_mq.O_CREAT
@@ -21,10 +21,14 @@ func main() {
 	count := 0
 	for {
 		count++
-		mq.Send([]byte(fmt.Sprintf("Hello, World : %d\n", count)), 0)
+		err = mq.Send([]byte(fmt.Sprintf("Hello, World : %d\n", count)), 0)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		fmt.Println("Sent a new message")
 
-		if count >= maxTickNum {
+		if count >= maxSendTickNum {
 			break
 		}
 
