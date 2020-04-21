@@ -1,6 +1,8 @@
 package posix_mq
 
 /*
+#cgo LDFLAGS: -lrt
+
 #include <stdlib.h>
 #include <signal.h>
 #include <fcntl.h>
