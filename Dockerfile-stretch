@@ -1,8 +1,8 @@
-FROM golang:1.11.1-alpine
+FROM golang:1.14-stretch
 
 WORKDIR /go/src/github.com/syucream/posix_mq
 ADD . /go/src/github.com/syucream/posix_mq
 
-RUN apk --update add build-base
+RUN apt-get update && apt-get install -y build-essential
 
 RUN make build
