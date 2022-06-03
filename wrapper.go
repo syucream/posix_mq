@@ -16,6 +16,7 @@ mqd_t mq_open4(const char *name, int oflag, int mode, struct mq_attr *attr) {
 import "C"
 import (
 	"fmt"
+	"time"
 	"unsafe"
 )
 
@@ -59,6 +60,13 @@ func (rb *receiveBuffer) free() {
 	C.free(unsafe.Pointer(rb.buf))
 }
 
+func timeToTimespec(t time.Time) C.struct_timespec {
+	return C.struct_timespec{
+		tv_sec:  C.long(t.Unix()),
+		tv_nsec: C.long(t.Nanosecond() % 1000000000),
+	}
+}
+
 func mq_open(name string, oflag int, mode int, attr *MessageQueueAttribute) (int, error) {
 	var cAttr *C.struct_mq_attr
 	if attr != nil {
@@ -83,10 +91,32 @@ func mq_send(h int, data []byte, priority uint) (int, error) {
 	return int(rv), err
 }
 
+func mq_timedsend(h int, data []byte, priority uint, t time.Time) (int, error) {
+	timeSpec := timeToTimespec(t)
+
+	byteStr := *(*string)(unsafe.Pointer(&data))
+	rv, err := C.mq_timedsend(C.int(h), C.CString(byteStr), C.size_t(len(data)), C.uint(priority), &timeSpec)
+	return int(rv), err
+}
+
 func mq_receive(h int, recvBuf *receiveBuffer) ([]byte, uint, error) {
 	var msgPrio C.uint
 
 	size, err := C.mq_receive(C.int(h), recvBuf.buf, recvBuf.size, &msgPrio)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return C.GoBytes(unsafe.Pointer(recvBuf.buf), C.int(size)), uint(msgPrio), nil
+}
+
+func mq_timedreceive(h int, recvBuf *receiveBuffer, t time.Time) ([]byte, uint, error) {
+	var (
+		msgPrio  C.uint
+		timeSpec = timeToTimespec(t)
+	)
+
+	size, err := C.mq_timedreceive(C.int(h), recvBuf.buf, recvBuf.size, &msgPrio, &timeSpec)
 	if err != nil {
 		return nil, 0, err
 	}
