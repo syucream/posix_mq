@@ -1,6 +1,9 @@
 package posix_mq
 
-import "syscall"
+import (
+	"syscall"
+	"time"
+)
 
 // Represents the message queue
 type MessageQueue struct {
@@ -47,9 +50,20 @@ func (mq *MessageQueue) Send(data []byte, priority uint) error {
 	return err
 }
 
+// TimedSend sends message to the message queue with a ceiling on the time for which the call will block.
+func (mq *MessageQueue) TimedSend(data []byte, priority uint, t time.Time) error {
+	_, err := mq_timedsend(mq.handler, data, priority, t)
+	return err
+}
+
 // Receive receives message from the message queue.
 func (mq *MessageQueue) Receive() ([]byte, uint, error) {
 	return mq_receive(mq.handler, mq.recvBuf)
+}
+
+// TimedReceive receives message from the message queue with a ceiling on the time for which the call will block.
+func (mq *MessageQueue) TimedReceive(t time.Time) ([]byte, uint, error) {
+	return mq_timedreceive(mq.handler, mq.recvBuf, t)
 }
 
 // FIXME Don't work because of signal portability.
