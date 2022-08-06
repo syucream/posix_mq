@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/syucream/posix_mq"
+	"github.com/skill215/posix_mq"
 )
 
 const maxRecvTickNum = 10

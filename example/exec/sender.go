@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/syucream/posix_mq"
+	"github.com/skill215/posix_mq"
 )
 
 const maxSendTickNum = 10
