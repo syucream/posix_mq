@@ -84,3 +84,7 @@ func (mq *MessageQueue) Unlink() error {
 	}
 	return mq_unlink(mq.name)
 }
+
+func ForceRemoveQueue(name string) {
+	_ = mq_unlink(name)
+}
