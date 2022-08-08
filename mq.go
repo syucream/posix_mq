@@ -21,6 +21,16 @@ type MessageQueueAttribute struct {
 	curMsgs int
 }
 
+// Error returned from mq operation. Code refers to syscall.Errno
+type PosixMQError struct {
+	Code    int
+	Message string
+}
+
+func (e *PosixMQError) Error() string {
+	return e.Message
+}
+
 // NewMessageQueue returns an instance of the message queue given a QueueConfig.
 func NewMessageQueue(name string, oflag int, mode int, attr *MessageQueueAttribute) (*MessageQueue, error) {
 	h, err := mq_open(name, oflag, mode, attr)

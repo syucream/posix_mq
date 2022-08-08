@@ -7,15 +7,17 @@ package posix_mq
 #include <signal.h>
 #include <fcntl.h>
 #include <mqueue.h>
-
+#include <errno.h>
 // Expose non-variadic function requires 4 arguments.
 mqd_t mq_open4(const char *name, int oflag, int mode, struct mq_attr *attr) {
 	return mq_open(name, oflag, mode, attr);
 }
+
 */
 import "C"
 import (
 	"fmt"
+	"syscall"
 	"time"
 	"unsafe"
 )
@@ -29,6 +31,11 @@ const (
 	O_CREAT    = C.O_CREAT
 	O_EXCL     = C.O_EXCL
 	O_NONBLOCK = C.O_NONBLOCK
+
+	S_IRUSR = C.S_IRUSR
+	S_IWUSR = C.S_IWUSR
+	S_IRGRP = C.S_IRGRP
+	S_IWGRP = C.S_IWGRP
 
 	// Based on Linux 3.5+
 	MSGSIZE_MAX     = 16777216
@@ -76,13 +83,16 @@ func mq_open(name string, oflag int, mode int, attr *MessageQueueAttribute) (int
 			mq_msgsize: C.long(attr.MsgSize),
 		}
 	}
-
-	h, err := C.mq_open4(C.CString(name), C.int(oflag), C.int(mode), cAttr)
-	if err != nil {
-		return 0, err
+	// mq_open return message queue descriptor or (mqd_t) -1 on error
+	ret, err := C.mq_open4(C.CString(name), C.int(oflag), C.int(mode), cAttr)
+	if errno, ok := err.(syscall.Errno); ret == -1 && ok {
+		// error signaled
+		return 0, &PosixMQError{
+			Code:    int(errno),
+			Message: errno.Error(),
+		}
 	}
-
-	return int(h), nil
+	return int(ret), nil
 }
 
 func mq_send(h int, data []byte, priority uint) (int, error) {
