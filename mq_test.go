@@ -12,9 +12,9 @@ func TestOpenMQWithOutCreatePermission(t *testing.T) {
 	oflag := posix_mq.O_WRONLY
 	mqt, err := posix_mq.NewMessageQueue("/testName", oflag, 666, nil)
 	assert.Nil(t, mqt)
-	mqErr, ok := err.(*posix_mq.PosixMQError)
+	mqErr, ok := err.(syscall.Errno)
 	assert.True(t, ok)
-	assert.Equal(t, int(syscall.ENOENT), mqErr.Code)
+	assert.Equal(t, syscall.ENOENT, mqErr)
 }
 
 func TestOpenMQWithWrongName(t *testing.T) {
@@ -22,7 +22,7 @@ func TestOpenMQWithWrongName(t *testing.T) {
 	mqt, err := posix_mq.NewMessageQueue("wrongName", oflag, 666, nil)
 	assert.Nil(t, mqt)
 	assert.NotNil(t, err)
-	mqErr, ok := err.(*posix_mq.PosixMQError)
+	mqErr, ok := err.(syscall.Errno)
 	assert.True(t, ok)
-	assert.Equal(t, int(syscall.EINVAL), mqErr.Code)
+	assert.Equal(t, syscall.EINVAL, mqErr)
 }

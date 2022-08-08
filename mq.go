@@ -21,16 +21,6 @@ type MessageQueueAttribute struct {
 	curMsgs int
 }
 
-// Error returned from mq operation. Code refers to syscall.Errno
-type PosixMQError struct {
-	Code    int
-	Message string
-}
-
-func (e *PosixMQError) Error() string {
-	return e.Message
-}
-
 // NewMessageQueue returns an instance of the message queue given a QueueConfig.
 func NewMessageQueue(name string, oflag int, mode int, attr *MessageQueueAttribute) (*MessageQueue, error) {
 	h, err := mq_open(name, oflag, mode, attr)
@@ -56,14 +46,12 @@ func NewMessageQueue(name string, oflag int, mode int, attr *MessageQueueAttribu
 
 // Send sends message to the message queue.
 func (mq *MessageQueue) Send(data []byte, priority uint) error {
-	_, err := mq_send(mq.handler, data, priority)
-	return err
+	return mq_send(mq.handler, data, priority)
 }
 
 // TimedSend sends message to the message queue with a ceiling on the time for which the call will block.
 func (mq *MessageQueue) TimedSend(data []byte, priority uint, t time.Time) error {
-	_, err := mq_timedsend(mq.handler, data, priority, t)
-	return err
+	return mq_timedsend(mq.handler, data, priority, t)
 }
 
 // Receive receives message from the message queue.
@@ -79,16 +67,13 @@ func (mq *MessageQueue) TimedReceive(t time.Time) ([]byte, uint, error) {
 // FIXME Don't work because of signal portability.
 // Notify set signal notification to handle new messages.
 func (mq *MessageQueue) Notify(sigNo syscall.Signal) error {
-	_, err := mq_notify(mq.handler, int(sigNo))
-	return err
+	return mq_notify(mq.handler, int(sigNo))
 }
 
 // Close closes the message queue.
 func (mq *MessageQueue) Close() error {
 	mq.recvBuf.free()
-
-	_, err := mq_close(mq.handler)
-	return err
+	return mq_close(mq.handler)
 }
 
 // Unlink deletes the message queue.
@@ -97,8 +82,5 @@ func (mq *MessageQueue) Unlink() error {
 	if err != nil {
 		return err
 	}
-
-	_, err = mq_unlink(mq.name)
-
-	return err
+	return mq_unlink(mq.name)
 }
