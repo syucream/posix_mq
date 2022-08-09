@@ -77,6 +77,8 @@ func (mq *MessageQueue) Close() error {
 }
 
 // Unlink deletes the message queue.
+// If one or more processes have the message queue open when mq_unlink() is called,
+// destruction of the message queue shall be postponed until all references to the message queue have been closed.
 func (mq *MessageQueue) Unlink() error {
 	err := mq.Close()
 	if err != nil {
@@ -85,6 +87,9 @@ func (mq *MessageQueue) Unlink() error {
 	return mq_unlink(mq.name)
 }
 
+// ForceRemoveQueue deletes the posix queue by name
+// If one or more processes have the message queue open when mq_unlink() is called,
+// destruction of the message queue shall be postponed until all references to the message queue have been closed.
 func ForceRemoveQueue(name string) {
 	_ = mq_unlink(name)
 }
