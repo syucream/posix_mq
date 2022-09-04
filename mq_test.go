@@ -229,6 +229,37 @@ func TestRecvEmptyQueueWithNonblocking(t *testing.T) {
 	assert.EqualError(t, syscall.EAGAIN, err.Error())
 }
 
+func TestSendMsgSizeShorterThanSet(t *testing.T) {
+	posix_mq.ForceRemoveQueue("testMQ.8")
+	msgSize := int(unsafe.Sizeof(TestMsg{}))
+	sflag := posix_mq.O_WRONLY | posix_mq.O_CREAT
+	mqtSend, err := createMQ("/testMQ.8", sflag, 10, msgSize+100)
+	assert.Nil(t, err)
+	rflag := posix_mq.O_RDONLY | posix_mq.O_CREAT
+	mqtRecv, err := createMQ("/testMQ.8", rflag, 10, msgSize+100)
+	assert.Nil(t, err)
+	buf := bytes.NewBuffer(make([]byte, msgSize))
+	for i := 1; i <= 10; i++ {
+		msg := TestMsg{
+			Type: uint8(i),
+		}
+		buf.Reset()
+		err := binary.Write(buf, binary.LittleEndian, msg)
+		assert.Nil(t, err)
+		err = mqtSend.Send(buf.Bytes(), uint(i))
+		assert.Nil(t, err)
+		recvMsg, prio, err := mqtRecv.Receive()
+		assert.Nil(t, err)
+		assert.Equal(t, uint(i), prio)
+		assert.Equal(t, uint8(i), recvMsg[0])
+	}
+	err = mqtSend.Unlink()
+	assert.Nil(t, err)
+	err = mqtRecv.Unlink()
+	assert.NotNil(t, err)
+	assert.Equal(t, syscall.ENOENT, err.(syscall.Errno))
+}
+
 func createMQ(name string, flag int, maxMsg int, msgSize int) (*posix_mq.MessageQueue, error) {
 	attr := posix_mq.MessageQueueAttribute{
 		MaxMsg:  maxMsg,

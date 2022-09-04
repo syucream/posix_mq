@@ -44,6 +44,11 @@ func NewMessageQueue(name string, oflag int, mode int, attr *MessageQueueAttribu
 	}, nil
 }
 
+// get the queue name
+func (mq *MessageQueue) Name() string {
+	return mq.name
+}
+
 // Send sends message to the message queue.
 func (mq *MessageQueue) Send(data []byte, priority uint) error {
 	return mq_send(mq.handler, data, priority)
