@@ -144,11 +144,12 @@ func mq_send(h int, data []byte, priority uint) error {
 
 func mq_timedsend(h int, data []byte, priority uint, t time.Time) error {
 	timeSpec := timeToTimespec(t)
-
+	l := uint32(len(data))
+	fmt.Printf("data length %d", l)
 	byteStr := *(*string)(unsafe.Pointer(&data))
 	// On success, mq_send() and mq_timedsend() return zero;
 	// on error, -1 is returned, with errno set to indicate the error.
-	rv, err := C.mq_timedsend(C.int(h), C.CString(byteStr), C.size_t(len(data)), C.uint(priority), &timeSpec)
+	rv, err := C.mq_timedsend(C.int(h), C.CString(byteStr), C.size_t(l), C.uint(priority), &timeSpec)
 	if rv == -1 {
 		return err
 	}
