@@ -108,7 +108,11 @@ func mq_open(name string, oflag int, mode int, attr *MessageQueueAttribute) (int
 	}
 	// On success, mq_open() returns a message queue descriptor for use by other message queue functions.
 	// On error, mq_open() returns (mqd_t) -1, with errno set to indicate the error.
-	ret, err := C.mq_open4(C.CString(name), C.int(oflag), C.int(mode), cAttr)
+
+	// ! C.CString() will malloc memory, need to free it
+	cName := C.CString(name)
+	defer C.free(unsafe.Pointer(cName))
+	ret, err := C.mq_open4(cName, C.int(oflag), C.int(mode), cAttr)
 	if ret == -1 {
 		// return the syscall.Errno
 		return 0, err
@@ -134,7 +138,10 @@ func mq_send(h int, data []byte, priority uint) error {
 	byteStr := *(*string)(unsafe.Pointer(&data))
 	// On success, mq_send() and mq_timedsend() return zero;
 	// on error, -1 is returned, with errno set to indicate the error.
-	rv, err := C.mq_send(C.int(h), C.CString(byteStr), C.size_t(len(data)), C.uint(priority))
+	// need to free C.CString return value
+	cStr := C.CString(byteStr)
+	defer C.free(unsafe.Pointer(cStr))
+	rv, err := C.mq_send(C.int(h), cStr, C.size_t(len(data)), C.uint(priority))
 	if rv == -1 {
 		return err
 	} else {
@@ -148,7 +155,11 @@ func mq_timedsend(h int, data []byte, priority uint, t time.Time) error {
 	byteStr := *(*string)(unsafe.Pointer(&data))
 	// On success, mq_send() and mq_timedsend() return zero;
 	// on error, -1 is returned, with errno set to indicate the error.
-	rv, err := C.mq_timedsend(C.int(h), C.CString(byteStr), C.size_t(l), C.uint(priority), &timeSpec)
+
+	// need to free CString
+	cStr := C.CString(byteStr)
+	defer C.free(unsafe.Pointer(cStr))
+	rv, err := C.mq_timedsend(C.int(h), cStr, C.size_t(l), C.uint(priority), &timeSpec)
 	if rv == -1 {
 		return err
 	}
@@ -210,7 +221,7 @@ func mq_notify(h int, sigNo int) error {
 }
 
 func mq_close(h int) error {
-	// On success mq_unlink() returns 0;
+	// On success mq_close() returns 0;
 	// On error, -1 is returned, with errno set to indicate the error.
 	rv, err := C.mq_close(C.int(h))
 	if rv == -1 {
@@ -221,9 +232,13 @@ func mq_close(h int) error {
 }
 
 func mq_unlink(name string) error {
-	// On success mq_close() returns 0;
+	// On success mq_unlink() returns 0;
 	// On error, -1 is returned, with errno set to indicate the error.
-	rv, err := C.mq_unlink(C.CString(name))
+	// need to free CString
+	cStr := C.CString(name)
+	defer C.free(unsafe.Pointer(cStr))
+
+	rv, err := C.mq_unlink(cStr)
 	if rv == -1 {
 		return err
 	} else {
