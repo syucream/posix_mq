@@ -17,8 +17,6 @@ type MessageQueueAttribute struct {
 	Flags   int
 	MaxMsg  int
 	MsgSize int
-
-	curMsgs int
 }
 
 // NewMessageQueue returns an instance of the message queue given a QueueConfig.

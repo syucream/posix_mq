@@ -5,6 +5,6 @@ docker:
 
 .PHONY: build
 build:
-	go build example/exec/sender.go
-	go build example/exec/receiver.go
+	go build example/exec/sender/main.go
+	go build example/exec/receiver/main.go
 

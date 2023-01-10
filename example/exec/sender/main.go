@@ -16,7 +16,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer mq.Close()
+	defer func(mq *posix_mq.MessageQueue) {
+		err := mq.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(mq)
 
 	count := 0
 	for {

@@ -15,7 +15,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer mq.Unlink()
+	defer func(mq *posix_mq.MessageQueue) {
+		err := mq.Unlink()
+		if err != nil {
+			log.Println(err)
+		}
+	}(mq)
 
 	fmt.Println("Start receiving messages")
 
@@ -27,7 +32,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf(string(msg))
+		fmt.Println(string(msg))
 
 		if count >= maxRecvTickNum {
 			break
