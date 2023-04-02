@@ -1,7 +1,7 @@
 package posix_mq
 
 /*
-#cgo LDFLAGS: -lrt
+#cgo LDFLAGS: -static -lrt
 
 #include <stdlib.h>
 #include <signal.h>
@@ -73,29 +73,51 @@ func timeToTimespec(t time.Time) C.struct_timespec {
 	}
 }
 
-/*Errors
+/*
+Errors
 EACCES
-    The queue exists, but the caller does not have permission to open it in the specified mode.
+
+	The queue exists, but the caller does not have permission to open it in the specified mode.
+
 EACCES
-    name contained more than one slash.
+
+	name contained more than one slash.
+
 EEXIST
-    Both O_CREAT and O_EXCL were specified in oflag, but a queue with this name already exists.
+
+	Both O_CREAT and O_EXCL were specified in oflag, but a queue with this name already exists.
+
 EINVAL
-    O_CREAT was specified in oflag, and attr was not NULL, but attr->mq_maxmsg or attr->mq_msqsize was invalid. Both of these fields must be greater than zero. In a process that is unprivileged (does not have the CAP_SYS_RESOURCE capability), attr->mq_maxmsg must be less than or equal to the msg_max limit, and attr->mq_msgsize must be less than or equal to the msgsize_max limit. In addition, even in a privileged process, attr->mq_maxmsg cannot exceed the HARD_MAX limit. (See mq_overview(7) for details of these limits.)
+
+	O_CREAT was specified in oflag, and attr was not NULL, but attr->mq_maxmsg or attr->mq_msqsize was invalid. Both of these fields must be greater than zero. In a process that is unprivileged (does not have the CAP_SYS_RESOURCE capability), attr->mq_maxmsg must be less than or equal to the msg_max limit, and attr->mq_msgsize must be less than or equal to the msgsize_max limit. In addition, even in a privileged process, attr->mq_maxmsg cannot exceed the HARD_MAX limit. (See mq_overview(7) for details of these limits.)
+
 EMFILE
-    The process already has the maximum number of files and message queues open.
+
+	The process already has the maximum number of files and message queues open.
+
 ENAMETOOLONG
-    name was too long.
+
+	name was too long.
+
 ENFILE
-    The system limit on the total number of open files and message queues has been reached.
+
+	The system limit on the total number of open files and message queues has been reached.
+
 ENOENT
-    The O_CREAT flag was not specified in oflag, and no queue with this name exists.
+
+	The O_CREAT flag was not specified in oflag, and no queue with this name exists.
+
 ENOENT
-    name was just "/" followed by no other characters.
+
+	name was just "/" followed by no other characters.
+
 ENOMEM
-    Insufficient memory.
+
+	Insufficient memory.
+
 ENOSPC
-    Insufficient space for the creation of a new message queue. This probably occurred because the queues_max limit was encountered; see mq_overview(7).
+
+	Insufficient space for the creation of a new message queue. This probably occurred because the queues_max limit was encountered; see mq_overview(7).
 */
 func mq_open(name string, oflag int, mode int, attr *MessageQueueAttribute) (int, error) {
 	var cAttr *C.struct_mq_attr
@@ -120,19 +142,31 @@ func mq_open(name string, oflag int, mode int, attr *MessageQueueAttribute) (int
 	return int(ret), nil
 }
 
-/*Errors
+/*
+Errors
 EAGAIN
+
 	The queue was full, and the O_NONBLOCK flag was set for the message queue description referred to by mqdes.
+
 EBADF
+
 	The descriptor specified in mqdes was invalid.
+
 EINTR
+
 	The call was interrupted by a signal handler; see signal(7).
+
 EINVAL
+
 	The call would have blocked, and abs_timeout was invalid, either because tv_sec was less than zero, or because tv_nsec was less than zero or greater than 1000 million.
+
 EMSGSIZE
-    msg_len was greater than the mq_msgsize attribute of the message queue.
+
+	msg_len was greater than the mq_msgsize attribute of the message queue.
+
 ETIMEDOUT
-    The call timed out before a message could be transferred.
+
+	The call timed out before a message could be transferred.
 */
 func mq_send(h int, data []byte, priority uint) error {
 	byteStr := *(*string)(unsafe.Pointer(&data))
@@ -166,19 +200,31 @@ func mq_timedsend(h int, data []byte, priority uint, t time.Time) error {
 	return nil
 }
 
-/*Errors
+/*
+Errors
 EAGAIN
+
 	The queue was empty, and the O_NONBLOCK flag was set for the message queue description referred to by mqdes.
+
 EBADF
+
 	The descriptor specified in mqdes was invalid.
+
 EINTR
+
 	The call was interrupted by a signal handler; see signal(7).
+
 EINVAL
+
 	The call would have blocked, and abs_timeout was invalid, either because tv_sec was less than zero, or because tv_nsec was less than zero or greater than 1000 million.
+
 EMSGSIZE
-    msg_len was less than the mq_msgsize attribute of the message queue.
+
+	msg_len was less than the mq_msgsize attribute of the message queue.
+
 ETIMEDOUT
-    The call timed out before a message could be transferred.
+
+	The call timed out before a message could be transferred.
 */
 func mq_receive(h int, recvBuf *receiveBuffer) ([]byte, uint, error) {
 	var msgPrio C.uint
