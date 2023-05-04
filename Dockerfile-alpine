@@ -1,7 +1,7 @@
 FROM golang:1.19-alpine
 
-WORKDIR /go/src/github.com/syucream/posix_mq
-ADD . /go/src/github.com/syucream/posix_mq
+WORKDIR /go/src/github.com/amagimedia-open/go_posix_mq
+ADD . /go/src/github.com/amagimedia-open/go_posix_mq
 
 RUN apk --update add build-base
 
