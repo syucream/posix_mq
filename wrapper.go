@@ -1,7 +1,7 @@
 package posix_mq
 
 /*
-#cgo LDFLAGS: -static -lrt
+#cgo LDFLAGS: -lrt
 
 #include <stdlib.h>
 #include <signal.h>
