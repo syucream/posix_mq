@@ -64,6 +64,13 @@ func (mq *MessageQueue) Receive() ([]byte, uint, error) {
 	return mq_receive(mq.handler, mq.recvBuf)
 }
 
+// UnsafeReceive receives message from the message queue
+// return []byte which point to the internal buffer, and the length of the message
+// need to copy the data before next receive
+func (mq *MessageQueue) UnsafeReceive() ([]byte, uint, error) {
+	return mq_receive_unsafe(mq.handler, mq.recvBuf)
+}
+
 // TimedReceive receives message from the message queue with a ceiling on the time for which the call will block.
 func (mq *MessageQueue) TimedReceive(t time.Time) ([]byte, uint, error) {
 	return mq_timedreceive(mq.handler, mq.recvBuf, t)

@@ -178,9 +178,8 @@ func mq_send(h int, data []byte, priority uint) error {
 	rv, err := C.mq_send(C.int(h), cStr, C.size_t(len(data)), C.uint(priority))
 	if rv == -1 {
 		return err
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func mq_timedsend(h int, data []byte, priority uint, t time.Time) error {
@@ -235,6 +234,19 @@ func mq_receive(h int, recvBuf *receiveBuffer) ([]byte, uint, error) {
 		return nil, 0, err
 	}
 	return C.GoBytes(unsafe.Pointer(recvBuf.buf), C.int(size)), uint(msgPrio), nil
+}
+
+// unsafe version of mq_receive, return the pointer of the buffer as []byte without copy
+func mq_receive_unsafe(h int, recvBuf *receiveBuffer) ([]byte, uint, error) {
+	var msgPrio C.uint
+	// On success, mq_receive() and mq_timedreceive() return the number of bytes in the received message;
+	// On error, -1 is returned, with errno set to indicate the error.
+	size, err := C.mq_receive(C.int(h), recvBuf.buf, recvBuf.size, &msgPrio)
+	if size == -1 {
+		return nil, 0, err
+	}
+
+	return unsafe.Slice((*byte)(unsafe.Pointer(recvBuf.buf)), int(size)), uint(msgPrio), nil
 }
 
 func mq_timedreceive(h int, recvBuf *receiveBuffer, t time.Time) ([]byte, uint, error) {

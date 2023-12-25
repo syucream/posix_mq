@@ -1,6 +1,6 @@
 module github.com/skill215/posix_mq
 
-go 1.17
+go 1.18
 
 require github.com/stretchr/testify v1.8.0
 
